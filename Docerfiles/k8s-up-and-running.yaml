@@ -1,0 +1,40 @@
+# STAGE 1: Build
+FROM golang:1.11-alpine AS build
+# Install Node and NPM
+RUN apk update && apk upgrade && apk add --no-cache git nodejs bash npm
+# Get dependencies for Go part of build
+RUN go get -u github.com/jteeuwen/go-bindata/...
+RUN go get github.com/tools/godep
+WORKDIR /go/src/github.com/kubernetes-up-and-running/kuard
+# Copy all sources in
+COPY . .
+# This is a set of variables that the build script expects
+ENV VERBOSE=0
+ENV PKG=github.com/kubernetes-up-and-running/kuard
+ENV ARCH=amd64
+ENV VERSION=test
+# Do the build. Script is part of incoming sources.
+RUN build/build.sh
+# STAGE 2: Deployment
+FROM alpine
+USER nobody:nobody
+COPY --from=build /go/bin/kuard /kuard
+CMD [ "/kuard" ]
+
+
+# Run them 
+# $ docker build -t kuard .
+# $ docker run --rm -p 8080:8080 kuard
+
+# tag and push
+# $ docker tag kuard gcr.io/kuar-demo/kuard-amd64:blue
+# Then you can push the kuard image:
+# $ docker push gcr.io/kuar-demo/kuard-amd64:blue
+
+# Run it with mem and CPU limits
+# $ docker run -d --name kuard \
+#  --publish 8080:8080 \
+#  --memory 200m \
+#  --memory-swap 1G \
+#  --cpu-shares 1024 \
+#  gcr.io/kuar-demo/kuard-amd64:blue

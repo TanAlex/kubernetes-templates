@@ -1,0 +1,4 @@
+hostname: Formio-DEV
+tags:
+  - aws_account:DEV
+  - docker:true

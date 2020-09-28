@@ -1,0 +1,21 @@
+apiVersion: metrics.aws/v1alpha1
+kind: ExternalMetric
+metadata:
+  name: elb-http-requests
+spec:
+  name: elb-http-requests
+  resource:
+    resource: "deployment"
+  queries:
+    - id: elb_connection_count_query
+      metricStat:
+        metric:
+          namespace: "AWS/ELB"
+          metricName: "EstimatedALBActiveConnectionCount"
+          dimensions:
+            - name: "LoadBalancerName"
+              value: "a70ac76ef1ed211eabbf51273b49c099"
+        period: 300
+        stat: Average
+        unit: Count
+      returnData: true

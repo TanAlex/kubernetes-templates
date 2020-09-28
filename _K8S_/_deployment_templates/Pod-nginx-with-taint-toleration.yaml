@@ -1,0 +1,57 @@
+# kubectl run --generator=run-pod/v1 nginx --image=nginx --dry-run -o yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels:
+    run: nginx
+  name: nginx
+  namespace: default
+spec:
+  containers:
+  - image: nginx
+    name: nginx
+    resources: {}
+  dnsPolicy: ClusterFirst
+  restartPolicy: Always
+status: {}
+
+----
+
+# this one tolerate
+# kubectl taint nodes node01 spray=mortein:NoSchedule
+apiVersion: v1
+kind: Pod
+metadata:
+  name: bee
+spec:
+  containers:
+  - image: nginx
+    name: bee
+  tolerations:
+  - key: spray
+    value: mortein
+    effect: NoSchedule
+    operator: Equalmaster
+
+---
+# kubectl run pod1 --restart=Never --image=bash -- bash -c "hostname >> /tmp/hostname && sleep 30"
+# kubectl get pod pod1 -o yaml --export > pod1.yaml
+
+
+apiVersion: v1
+kind: Pod 
+metadata:
+  labels:
+    run: pod1
+    my-label: test
+  name: pod1
+spec:
+  containers:
+  - args:
+    - bash
+    - -c
+    - hostname >> /tmp/hostname && sleep 30
+    image: bash
+    name: pod1
+  restartPolicy: Never

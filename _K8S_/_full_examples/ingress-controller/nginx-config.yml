@@ -1,0 +1,48 @@
+# https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/configmap/#configuration-options
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: nginx-configuration
+  namespace: ingress-nginx
+  labels:
+    app.kubernetes.io/name: ingress-nginx
+    app.kubernetes.io/part-of: ingress-nginx
+data:
+  proxy-body-size: '11m'
+  use-gzip: 'true'
+  gzip-types: 'application/atom+xml application/javascript application/x-javascript application/json application/rss+xml application/vnd.ms-fontobject application/x-font-ttf application/x-web-app-manifest+json application/xhtml+xml application/xml font/opentype image/svg+xml image/x-icon text/css text/plain text/x-component'
+  ssl-redirect: 'true'
+  hide-headers: 'X-Powered-By'
+  use-geoip: 'false'
+  use-geoip2: 'true'
+  use-forwarded-headers: 'true'
+  use-proxy-protocol: 'true'
+  http-snippet: |
+    map $geoip2_city_country_code $allow_country {
+      default 0;
+      US 1;
+    }
+  server-snippet: |
+    if ($allow_country = 0) {
+      return 403;
+    }
+
+---
+ apiVersion: v1
+ kind: ConfigMap
+ metadata:
+   name: tcp-services
+   namespace: ingress-nginx
+   labels:
+    app.kubernetes.io/name: ingress-nginx
+    app.kubernetes.io/part-of: ingress-nginx
+
+---
+ apiVersion: v1
+ kind: ConfigMap
+ metadata:
+   name: udp-services
+   namespace: ingress-nginx
+   labels:
+    app.kubernetes.io/name: ingress-nginx
+    app.kubernetes.io/part-of: ingress-nginx 

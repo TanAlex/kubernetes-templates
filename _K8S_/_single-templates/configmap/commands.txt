@@ -1,0 +1,11 @@
+export CONFIG_DIR=deployment/config-maps/stage-configs
+kubectl create configmap nginx-frontend-config \
+  --from-file=$CONFIG_DIR \
+  --dry-run \
+  -o yaml
+
+# if the output looks good, then apply
+kubectl create configmap nginx-frontend-config \
+  --from-file=$CONFIG_DIR \
+  --dry-run \
+  -o yaml | kubectl apply -f -

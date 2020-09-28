@@ -1,0 +1,26 @@
+# aliases
+alias k='kubectl'
+alias kg='kubectl get'
+alias kd='kubectl describe'
+
+kubectl run redis --image=redis --generator=run-pod/v1
+
+kubectl run nginx --image=nginx --generator=run-pod/v1
+
+kubectl run --restart=Never --image=busybox static-busybox --dry-run -o yaml --command -- sleep 1000 
+
+# Expose to service
+kubectl expose deployment nginx -type=ClusterIP --name=my-nginx-serive --port=80 --target-port=80
+
+
+# set context
+kubectl config set-context $(kebectl config current-context) --namepsace=dev
+
+# create service
+kubectl create service clusterip my-service --tcp=80:8080
+kubectl create service nodeport  my-service --tcp=80:8080
+
+# debug pods
+kubectl run --rm utils -it --generator=run-pod/v1 --image arunvelsriram/utils bash
+# another type of image, use busybox
+kubectl run -i --rm --tty debug --image=busybox --restart=Never -- sh

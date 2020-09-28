@@ -1,0 +1,72 @@
+
+# Get pod by label, show labels env, bu, tier and list the env=dev ones
+kubectl get pod -l env=dev -L env,bu,tier
+
+$ kubectl cluster-info
+$ kubectl get nodes
+$ kubectl get componentstatuses
+$ kubectl get pods -o wide --show-labels --all-namespaces
+$ kubectl get svc  -o wide --show-labels --all-namespaces
+
+# Run a pod directly
+kubectl run blue --image=nginx --replicas=6
+kubectl run nginx --image=nginx --generator=run-pod/v1
+
+kubectl run pod1 --restart=Never --image=bash -- bash -c "hostname >> /tmp/hostname && sleep 30"
+kubectl get pod pod1 -o yaml --export > pod1.yaml
+
+# generate yaml code
+kubectl run --generator=run-pod/v1 nginx --image=nginx --dry-run -o yaml
+
+
+# Create a deployment
+kubectl run --generator=deployment/v1beta1 nginx --image=nginx
+
+# Generate Deployment YAML file (-o yaml). Don't create it(--dry-run)
+kubectl run --generator=deployment/v1beta1 nginx --image=nginx --dry-run -o yaml
+
+# Generate Deployment YAML file (-o yaml). Don't create it(--dry-run) with 4 Replicas (--replicas=4)
+kubectl run --generator=deployment/v1beta1 nginx --image=nginx --dry-run --replicas=4 -o yaml
+
+# Save it to a file - (If you need to modify or add some other details before actually creating it)
+kubectl run --generator=deployment/v1beta1 nginx --image=nginx --dry-run --replicas=4 -o yaml > nginx-deployment.yaml
+
+# Service
+# Create a Service named redis-service of type ClusterIP to expose pod redis on port 6379
+kubectl expose pod redis --port=6379 --name redis-service --dry-run -o yaml
+# (This will automatically use the pod's labels as selectors)
+# Or
+kubectl create service clusterip redis --tcp=6379:6379 --dry-run -o yaml
+
+# NodePort
+kubectl create service nodeport nginx --tcp=80:80 --node-port=30080 --dry-run -o yaml
+
+# Taint pod
+kubectl taint nodes node01 spray=mortein:NoSchedule
+
+# Master pod has taint
+# Taints:             node-role.kubernetes.io/master:NoSchedule
+# Remove the taint by append -
+kubectl taint nodes master node-role.kubernetes.io/master:NoSchedule-
+
+# Label
+kubectl label node node01 color=blue
+
+# port-forward: opens up a connection that forwards traffic from the local machine on port 8080 to
+# the remote container on port 80.
+$ kubectl port-forward <pod-name> 8080:80
+
+# copy pod's file to local
+$ kubectl cp <pod-name>:</path/to/remote/file> </path/to/local/file>
+
+# match expression
+selector:
+  matchLabels:
+    app: alpaca
+  matchExpressions:
+    - {key: ver, operator: In, values: [1, 2]} 
+
+# The selector app=alpaca,ver=1 would be represented like this:
+selector:
+  app: alpaca
+  ver: 1

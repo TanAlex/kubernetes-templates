@@ -1,0 +1,66 @@
+# setup 
+# annotations:
+#    kubernetes.io/ingress.class: "nginx"
+#    nginx.com/health-checks: "true"
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: cafe-ingress
+  annotations:
+     kubernetes.io/ingress.class: "nginx"
+     nginx.com/health-checks: "true"
+spec:
+  rules:
+  - host: "cafe.example.com"
+    http:
+      paths:
+      - path: /tea
+        backend:
+          serviceName: tea-svc
+          servicePort: 80
+      - path: /coffee
+        backend:
+          serviceName: coffee-svc
+          servicePort: 80
+      - path: /beer
+        backend:
+          serviceName: beer-svc
+          servicePort: 80
+
+---
+# Note that a Readiness Probe must be configured in the pod template:
+
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: tea
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: tea
+  template: 
+    metadata:
+      labels:
+        app: tea
+    spec:
+      containers:
+      - name: tea
+        image: nginxdemos/hello:plain-text
+        ports:
+        - containerPort: 80
+        readinessProbe:
+          httpGet:
+            port: 80
+            path: /healthz/tea
+            httpHeaders:
+            - name: header1
+              value: "some value"
+            - name: header2
+              value: "123"
+          initialDelaySeconds: 1
+          periodSeconds: 5
+          timeoutSeconds: 4
+          successThreshold: 2
+          failureThreshold: 3
